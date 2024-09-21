@@ -4,6 +4,8 @@ const { ExpressPeerServer } = require("peer");
 const http = require("http");
 const { v4: uuidv4 } = require("uuid");
 const { Server } = require("socket.io");
+const route = require("express").Router();
+const serverless = require("serverless-http");
 
 const app = express();
 const server = http.createServer(app); // Properly create HTTP server
@@ -23,6 +25,8 @@ app.set("view engine", "ejs");
 
 // Serving static files from the 'public' directory
 app.use(express.static("public"));
+
+app.use("/.netlify/functions/app", router);
 
 // Generate a new room ID and redirect the user to that room
 app.get("/", (req, res) => {
@@ -53,3 +57,5 @@ io.on("connection", (socket) => {
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+module.exports.handle = serverless(app);
